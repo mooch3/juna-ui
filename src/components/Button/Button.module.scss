@@ -1,0 +1,52 @@
+@mixin button($bck-clr, $border, $fnt-clr) {
+  width: 175px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  opacity: 1;
+  transition: ease-in-out 0.3s;
+  justify-content: center;
+  align-items: center;
+  flex: 0 1 auto;
+  padding: 0.5rem;
+  background-color: $bck-clr;
+  border: $border;
+  color: $fnt-clr;
+}
+
+.danger {
+  @include button(var(--secondary), 1px solid rgb(184, 8, 8), rgb(184, 8, 8));
+  display: flex;
+
+  &:disabled {
+    background-color: #ccc;
+    color: white;
+    cursor: not-allowed;
+    outline: none;
+  }
+
+  &:hover {
+    background-color: rgb(184, 8, 8);
+    color: var(--secondary);
+    outline: 1px solid rgb(184, 8, 8);
+    cursor: pointer;
+  }
+}
+
+.pretty {
+  @include button(var(--primary), none, var(--secondary));
+
+  &:hover {
+    background-color: var(--secondary);
+    color: var(--primary);
+    outline: 1px solid var(--primary);
+    cursor: pointer;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    color: white;
+    cursor: not-allowed;
+    outline: none;
+  }
+}
