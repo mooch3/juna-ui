@@ -1,7 +1,9 @@
 {
-  "name": "juna-ui",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@mooch3/juna-ui",
+  "version": "0.2.3",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/mooch3"
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.4",

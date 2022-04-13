@@ -15,7 +15,7 @@
 }
 
 .danger {
-  @include button(var(--secondary), 1px solid rgb(184, 8, 8), rgb(184, 8, 8));
+  @include button(whitesmoke, 1px solid rgb(184, 8, 8), rgb(184, 8, 8));
   display: flex;
 
   &:disabled {
@@ -27,19 +27,19 @@
 
   &:hover {
     background-color: rgb(184, 8, 8);
-    color: var(--secondary);
+    color: whitesmoke;
     outline: 1px solid rgb(184, 8, 8);
     cursor: pointer;
   }
 }
 
 .pretty {
-  @include button(var(--primary), none, var(--secondary));
+  @include button(#070738, none, whitesmoke);
 
   &:hover {
-    background-color: var(--secondary);
-    color: var(--primary);
-    outline: 1px solid var(--primary);
+    background-color: whitesmoke;
+    color: #070738;
+    outline: 1px solid #070738;
     cursor: pointer;
   }
 
