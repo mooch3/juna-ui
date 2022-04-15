@@ -21,10 +21,7 @@ const Button = ({
   children,
   customStyles,
   disabled,
-  hidden,
-  id,
   loading,
-  form,
 }: PrettyButtonProps) => {
   const appliedClass = danger ? styles.danger : styles.pretty;
 
@@ -35,9 +32,6 @@ const Button = ({
       style={customStyles}
       className={appliedClass}
       disabled={disabled || loading}
-      hidden={hidden}
-      id={id}
-      form={form}
     >
       {children}
     </button>

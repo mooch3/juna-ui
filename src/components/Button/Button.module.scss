@@ -16,7 +16,7 @@
 }
 
 .danger {
-  @include button(whitesmoke, 1px solid rgb(184, 8, 8), rgb(184, 8, 8));
+  @include button(white, 1px solid rgb(184, 8, 8), rgb(184, 8, 8));
   &:disabled {
     background-color: #ccc;
     color: white;
@@ -26,16 +26,16 @@
 
   &:hover {
     background-color: rgb(184, 8, 8);
-    color: whitesmoke;
+    color: white;
     outline: 1px solid rgb(184, 8, 8);
     cursor: pointer;
   }
 }
 
 .pretty {
-  @include button(#070738, none, whitesmoke);
+  @include button(#070738, none, white);
   &:hover {
-    background-color: whitesmoke;
+    background-color: white;
     color: #070738;
     outline: 1px solid #070738;
     cursor: pointer;
