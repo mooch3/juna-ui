@@ -1,0 +1,252 @@
+@import "../../App.scss";
+
+.steps {
+  display: flex;
+  width: clamp(400px, 100%, 1000px);
+  line-height: 1.6;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.stepsVert {
+  display: flex;
+  width: clamp(400px, 80%, 90%);
+  line-height: 1.6;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  position: relative;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.step {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.circle {
+  min-width: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  max-width: 40px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: 700;
+  user-select: none;
+}
+
+.circleSelected {
+  min-width: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  max-width: 40px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--brilliant);
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.stepHolder h4 {
+  font-family: "Lato";
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: clamp(0.5rem, 2.5vw, 0.75rem);
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.stepHolder h5 {
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  color: #e2e1e2;
+  font-weight: 300;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-self: center;
+}
+
+.col h6 {
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.stepHolder {
+  margin: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  max-width: 500px;
+  overflow: hidden;
+}
+
+.line {
+  height: 1px;
+  background-color: var(--primary);
+  width: 100%;
+  margin: 0.5rem;
+  display: flex;
+  flex-grow: 1;
+}
+
+.lineSelected {
+  height: 1px;
+  background-color: var(--brilliant);
+  width: 100%;
+  margin: 0.5rem;
+  display: flex;
+  flex-grow: 1;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  overflow: none;
+  height: 60px;
+  flex: 1 1 75px;
+}
+
+.stepContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  line-height: 1.6;
+}
+
+.vertCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  overflow: none;
+  height: 60px;
+  height: 100px;
+}
+
+.vertCol h6 {
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.vertStepHolder {
+  margin: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  max-width: 500px;
+  overflow: hidden;
+  min-height: 60px;
+  max-height: 60px;
+}
+
+.vertStepHolder h4 {
+  @include google-font("Lato");
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.vertStepHolder h5 {
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  color: #e2e1e2;
+  font-weight: 300;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-self: center;
+}
+
+.lineVert {
+  height: 100%;
+  width: 1px;
+  background-color: var(--primary);
+  margin: 0 23px;
+}
+
+.lineVertSelected {
+  height: 100%;
+  width: 1px;
+  background-color: var(--brilliant);
+  margin: 0 23px;
+}
+
+@media screen and (max-width: 550px) {
+  .steps {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .line {
+    display: none;
+  }
+  .lineSelected {
+    display: none;
+  }
+  .lineVertical {
+    height: 100%;
+    width: 1px;
+    background-color: var(--primary);
+    margin: 0 23px 0.5rem;
+  }
+
+  .lineVerticalSelected {
+    height: 100%;
+    width: 1px;
+    background-color: var(--brilliant);
+    margin: 0 23px 0.5rem;
+  }
+  .col {
+    height: 100%;
+  }
+  .stepHolder {
+    height: 100px;
+  }
+
+  .stepHolder:last-child {
+    height: 50px;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  .col:last-child {
+    justify-content: flex-start;
+    max-height: 50px;
+  }
+  .steps:last-child {
+    align-items: flex-start;
+  }
+}
