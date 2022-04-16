@@ -7,7 +7,7 @@ const stories = storiesOf("junaui/Steps", module);
 stories.add("Steps", () => {
   return (
     <Steps current={2}>
-      <Steps.Step title='First' />
+      <Steps.Step title='First' subtitle='first step' />
       <Steps.Step title='Second' />
       <Steps.Step title='Third' />
     </Steps>
