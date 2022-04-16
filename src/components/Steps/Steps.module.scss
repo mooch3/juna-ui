@@ -1,26 +1,102 @@
 @import "../../App.scss";
 
-.steps {
+@mixin steps() {
   display: flex;
-  width: clamp(400px, 100%, 1000px);
   line-height: 1.6;
   list-style: none;
   padding: 0;
   margin: 0;
   align-items: center;
   position: relative;
+}
+
+@mixin line($bg-color) {
+  height: 1px;
+  background-color: $bg-color;
+  width: 100%;
+  margin: 0.5rem;
+  display: flex;
+  flex-grow: 1;
+}
+
+@mixin vertLine($bg-color) {
+  height: 100%;
+  width: 1px;
+  background-color: $bg-color;
+  margin: 0 23px;
+}
+
+@mixin circle($bg-color) {
+  min-width: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  max-width: 40px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $bg-color;
+  font-weight: 700;
+  user-select: none;
+}
+
+@mixin col($ht, $flx) {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  overflow: none;
+  height: $ht;
+  flex: $flx;
+}
+
+@mixin sub-title() {
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+@mixin hldr-sub() {
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  color: #e2e1e2;
+  font-weight: 300;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-self: center;
+}
+
+@mixin stp-hldr() {
+  font-family: "Lato";
+  margin: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  max-width: 500px;
+  overflow: hidden;
+}
+
+@mixin title() {
+  margin: 0 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: clamp(0.5rem, 2.5vw, 0.75rem);
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.steps {
+  @include steps();
   flex-wrap: wrap;
 }
 
 .stepsVert {
-  display: flex;
-  width: clamp(400px, 80%, 90%);
-  line-height: 1.6;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  align-items: center;
-  position: relative;
+  @include steps();
   flex-direction: column;
   justify-content: space-between;
 }
@@ -33,102 +109,27 @@
 }
 
 .circle {
-  min-width: 40px;
-  min-height: 40px;
-  max-height: 40px;
-  max-width: 40px;
-  border-radius: 50%;
-  background-color: var(--primary);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-weight: 700;
-  user-select: none;
+  @include circle(var(--primary));
 }
 
 .circleSelected {
-  min-width: 40px;
-  min-height: 40px;
-  max-height: 40px;
-  max-width: 40px;
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--brilliant);
-  font-weight: 700;
-  cursor: pointer;
-  user-select: none;
-}
-
-.stepHolder h4 {
-  font-family: "Lato";
-  margin: 0 0.25rem;
-  text-align: left;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  font-size: clamp(0.5rem, 2.5vw, 0.75rem);
-  font-weight: bold;
-  color: var(--primary);
-}
-
-.stepHolder h5 {
-  margin: 0 0.25rem;
-  text-align: left;
-  white-space: nowrap;
-  color: #e2e1e2;
-  font-weight: 300;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  align-self: center;
-}
-
-.col h6 {
-  margin: 0 0.25rem;
-  text-align: left;
-  white-space: nowrap;
-  font-size: 0.75rem;
-}
-
-.stepHolder {
-  margin: 0 0.25rem;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  position: relative;
-  max-width: 500px;
-  overflow: hidden;
+  @include circle(var(--brilliant));
 }
 
 .line {
-  height: 1px;
-  background-color: var(--primary);
-  width: 100%;
-  margin: 0.5rem;
-  display: flex;
-  flex-grow: 1;
+  @include line(var(--primary));
 }
 
 .lineSelected {
-  height: 1px;
-  background-color: var(--brilliant);
-  width: 100%;
-  margin: 0.5rem;
-  display: flex;
-  flex-grow: 1;
+  @include line(var(--brilliant));
 }
 
 .col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  overflow: none;
-  height: 60px;
-  flex: 1 1 75px;
+  @include col(60px, 1 1 75px);
+}
+
+.vertCol {
+  @include col(100px, none);
 }
 
 .stepContainer {
@@ -141,68 +142,33 @@
   display: flex;
   line-height: 1.6;
 }
-
-.vertCol {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  overflow: none;
-  height: 60px;
-  height: 100px;
-}
-
-.vertCol h6 {
-  margin: 0 0.25rem;
-  text-align: left;
-  white-space: nowrap;
-  font-size: 0.75rem;
+.stepHolder {
+  @include stp-hldr();
+  h4 {
+    @include title();
+  }
+  h5 {
+    @include hldr-sub();
+  }
 }
 
 .vertStepHolder {
-  margin: 0 0.25rem;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  position: relative;
-  max-width: 500px;
-  overflow: hidden;
+  @include stp-hldr();
   min-height: 60px;
-  max-height: 60px;
-}
-
-.vertStepHolder h4 {
-  @include google-font("Lato");
-  margin: 0 0.25rem;
-  text-align: left;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.vertStepHolder h5 {
-  margin: 0 0.25rem;
-  text-align: left;
-  white-space: nowrap;
-  color: #e2e1e2;
-  font-weight: 300;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  align-self: center;
+  h4 {
+    @include title();
+  }
+  h5 {
+    @include hldr-sub();
+  }
 }
 
 .lineVert {
-  height: 100%;
-  width: 1px;
-  background-color: var(--primary);
-  margin: 0 23px;
+  @include vertLine(var(--primary));
 }
 
 .lineVertSelected {
-  height: 100%;
-  width: 1px;
-  background-color: var(--brilliant);
-  margin: 0 23px;
+  @include vertLine(var(--brilliant));
 }
 
 @media screen and (max-width: 550px) {
@@ -223,7 +189,6 @@
     background-color: var(--primary);
     margin: 0 23px 0.5rem;
   }
-
   .lineVerticalSelected {
     height: 100%;
     width: 1px;
@@ -232,11 +197,11 @@
   }
   .col {
     height: 100%;
+    flex-direction: column;
   }
   .stepHolder {
     height: 100px;
   }
-
   .stepHolder:last-child {
     height: 50px;
     justify-content: flex-start;

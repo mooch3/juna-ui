@@ -3,7 +3,7 @@ import React, {
   cloneElement,
   createContext,
   useContext,
-  useRef,
+  useMemo,
   useState,
 } from "react";
 import { FaCheck } from "react-icons/fa";
@@ -45,15 +45,15 @@ const StepContext = createContext<StepsContext>({
 });
 
 const Steps = ({ children, current, direction }: StepsProps) => {
-  const ref = useRef(null);
   const [totalSteps] = useState(React.Children.count(children));
 
   const arrayChildren = React.Children.toArray(children);
+
+  const value = useMemo(() => ({ current, totalSteps }), [current, totalSteps]);
   return (
-    <StepContext.Provider value={{ current, totalSteps }}>
+    <StepContext.Provider value={value}>
       <ul
         className={direction === "vertical" ? styles.stepsVert : styles.steps}
-        ref={ref}
       >
         {Children.map(arrayChildren, (child, index) => {
           const isLast = index === arrayChildren.length - 1;
@@ -92,7 +92,10 @@ const Step = ({
       {direction !== "vertical" ? (
         <div
           className={styles.col}
-          style={{ width: isLast ? "fit-content" : "100%" }}
+          style={{
+            width: isLast ? "fit-content" : "100%",
+            flex: isLast ? "none" : "1 1 75px",
+          }}
         >
           <li className={styles.stepHolder}>
             <div
