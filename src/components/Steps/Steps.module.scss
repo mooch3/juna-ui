@@ -126,6 +126,11 @@
 
 .col {
   @include col(60px, 1 1 75px);
+  font-family: "Lato";
+  flex-direction: column;
+  h6 {
+    margin: 0 0 0 0.5rem;
+  }
 }
 
 .vertCol {

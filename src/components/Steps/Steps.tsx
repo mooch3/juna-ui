@@ -90,42 +90,45 @@ const Step = ({
   return (
     <>
       {direction !== "vertical" ? (
-        <div
-          className={styles.col}
-          style={{
-            width: isLast ? "fit-content" : "100%",
-            flex: isLast ? "none" : "1 1 75px",
-          }}
-        >
-          <li className={styles.stepHolder}>
-            <div
-              className={
-                current !== index ? styles.circle : styles.circleSelected
-              }
-            >
-              {index !== undefined && current > index && <FaCheck />}
-              {index !== undefined && current <= index && index + 1}
-            </div>
-            {(title || description) && (
-              <div className={styles.row}>
-                {title && <h4>{title}</h4>}
-                {description && <h5>{description}</h5>}
+        <div className={styles.col}>
+          <div
+            className={styles.col}
+            style={{
+              width: isLast ? "fit-content" : "100%",
+              flex: isLast ? "none" : "1 1 75px",
+            }}
+          >
+            <li className={styles.stepHolder}>
+              <div
+                className={
+                  current !== index ? styles.circle : styles.circleSelected
+                }
+              >
+                {index !== undefined && current > index && <FaCheck />}
+                {index !== undefined && current <= index && index + 1}
               </div>
-            )}
+              {(title || description) && (
+                <div className={styles.row}>
+                  {title && <h4>{title}</h4>}
+                  {description && <h5>{description}</h5>}
+                </div>
+              )}
+
+              {!isLast && index !== current - 1 && (
+                <div className={styles.line} />
+              )}
+              {!isLast && index === current - 1 && (
+                <div className={styles.lineSelected} />
+              )}
+            </li>
             {!isLast && index !== current - 1 && (
-              <div className={styles.line} />
+              <div className={styles.lineVertical} />
             )}
             {!isLast && index === current - 1 && (
-              <div className={styles.lineSelected} />
+              <div className={styles.lineVerticalSelected} />
             )}
-          </li>
+          </div>
           {subtitle && <h6>{subtitle}</h6>}
-          {!isLast && index !== current - 1 && (
-            <div className={styles.lineVertical} />
-          )}
-          {!isLast && index === current - 1 && (
-            <div className={styles.lineVerticalSelected} />
-          )}
         </div>
       ) : (
         <div className={styles.vertCol}>

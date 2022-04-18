@@ -21,9 +21,31 @@ describe("Steps", () => {
     expect(step).toBeInTheDocument();
   });
   test("has a step that says 'Second'", () => {
-    <Steps current={0}>
-      <Steps.Step title='First' subtitle='A step' />
-      <Steps.Step title='Second' subtitle='A second' />
-    </Steps>;
+    render(
+      <Steps current={0}>
+        <Steps.Step
+          title='First'
+          subtitle='A step'
+          description='The first step'
+        />
+        <Steps.Step title='Second' subtitle='A second' />
+      </Steps>
+    );
+    const step = screen.getByText("The first step");
+    expect(step).toBeInTheDocument();
+  });
+  test("current step has selected classes", () => {
+    render(
+      <Steps current={1}>
+        <Steps.Step
+          title='First'
+          subtitle='A step'
+          description='The first step'
+        />
+        <Steps.Step title='Second' subtitle='A second' />
+      </Steps>
+    );
+    const step = screen.getByText("2");
+    expect(step.classList.contains("circleSelected")).toBeTruthy();
   });
 });
