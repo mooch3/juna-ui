@@ -1,0 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap");
+
+@mixin google-font($family) {
+  @import url("https://fonts.googleapis.com/css2?family=#{$family}:wght@100;300;400;700;900&display=swap");
+}
+
+:root {
+  --primary: #070738;
+  --gentle-shadow: 0 2px 2px 0 rgb(0 0 0 / 10%), 0 1px 3px 0 rgb(0 0 0 / 6%);
+  --bord-rad: 5px;
+  --secondary: whitesmoke;
+  --bold-font-color: #4a5073;
+  --label-color: #303236;
+  --focus: #48a1ff;
+  --light-gray: #e2e2e2;
+  --st-height-diff: calc(100vh - 59px);
+  --brilliant: #ff8800ec;
+  --warning: rgb(203, 50, 0);
+}

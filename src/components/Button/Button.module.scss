@@ -1,0 +1,50 @@
+@mixin button($bck-clr, $border, $fnt-clr) {
+  width: 175px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  opacity: 1;
+  transition: ease-in-out 0.3s;
+  justify-content: center;
+  align-items: center;
+  flex: 0 1 auto;
+  padding: 0.5rem;
+  background-color: $bck-clr;
+  border: $border;
+  color: $fnt-clr;
+  display: flex;
+}
+
+.danger {
+  @include button(white, 1px solid rgb(184, 8, 8), rgb(184, 8, 8));
+  &:disabled {
+    background-color: #ccc;
+    color: white;
+    cursor: not-allowed;
+    outline: none;
+  }
+
+  &:hover {
+    background-color: rgb(184, 8, 8);
+    color: white;
+    outline: 1px solid rgb(184, 8, 8);
+    cursor: pointer;
+  }
+}
+
+.pretty {
+  @include button(#070738, none, white);
+  &:hover {
+    background-color: white;
+    color: #070738;
+    outline: 1px solid #070738;
+    cursor: pointer;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    color: white;
+    cursor: not-allowed;
+    outline: none;
+  }
+}
