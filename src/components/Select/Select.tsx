@@ -32,7 +32,7 @@ type OptGroupProps = PropsWithChildren<{
 
 type SelectCtx<OptionType> = {
   selectedValue: OptionType | null;
-  selectValue?: () => void;
+  selectValue: (value: any) => void;
 };
 
 const useSelectContext = () => {
@@ -46,6 +46,7 @@ const useSelectContext = () => {
 
 const SelectContext = createContext<SelectCtx<any>>({
   selectedValue: null,
+  selectValue: (value: any) => {},
 });
 
 const Select = <OptionType extends any>({
@@ -88,8 +89,24 @@ const Option = <OptionType extends any>({
 }: OptionProps<OptionType>) => {
   const { selectedValue, selectValue } = useSelectContext();
 
-  const handleSelect = () => {};
-  return <li onClick={handleSelect}>{children}</li>;
+  const handleSelect = () => {
+    selectValue(value);
+  };
+
+  return (
+    <li
+      className={
+        disabled
+          ? styles["juna-ui-disabled"]
+          : value === selectedValue
+          ? styles["juna-ui-selected"]
+          : styles["juna-ui_item"]
+      }
+      onClick={handleSelect}
+    >
+      {children}
+    </li>
+  );
 };
 
 const OptGroup = ({ label, children }: OptGroupProps) => {
