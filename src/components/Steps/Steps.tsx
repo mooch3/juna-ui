@@ -9,12 +9,9 @@ import React, {
 import { FaCheck } from "react-icons/fa";
 import styles from "./Steps.module.scss";
 
-<<<<<<< HEAD
 // --- CHALLENGES --- //
 // * find a way to elegantly hide private props such as isLast, index, and direction in Step component
 
-=======
->>>>>>> upstream
 type StepsProps = {
   children: React.ReactNode;
   current: number;
