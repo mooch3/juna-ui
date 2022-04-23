@@ -5,14 +5,33 @@
   align-items: $aln-it;
 }
 
+.jui-wrapper {
+  position: relative;
+  max-width: 200px;
+}
+
 .jui-dd-select {
   @include flexy(row, space-between, center);
   border: 1px solid var(--bold-font-color);
   border-radius: var(--bord-rad);
-  max-width: 175px;
+  max-width: 200px;
+  width: 200px;
   padding: 0.5rem;
   font-family: "Lato";
   &:focus {
     border: 1px solid var(--focus);
   }
+}
+
+.jui-dd {
+  @include flexy(column, center, center);
+  position: absolute;
+  top: 100%;
+  left: 15px;
+  font-family: "Lato";
+  list-style: none;
+  box-shadow: var(--gentle-shadow);
+  max-width: 200px;
+  width: 200px;
+  border-radius: 3px;
 }

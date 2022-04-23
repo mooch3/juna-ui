@@ -34,6 +34,7 @@ type SelectCtx<OptionType> = {
   selectedValue: OptionType | null;
   displayNode: React.ReactNode | null;
   selectValue: (value: any) => void;
+  setDisplayNode: (child: React.ReactNode) => void;
 };
 
 const useSelectContext = () => {
@@ -49,6 +50,7 @@ const SelectContext = createContext<SelectCtx<unknown>>({
   selectedValue: null,
   displayNode: null,
   selectValue: (value: unknown) => {},
+  setDisplayNode: (child: React.ReactNode) => {},
 });
 
 const Select = <OptionType,>({
@@ -63,6 +65,7 @@ const Select = <OptionType,>({
   children,
 }: SelectProps<OptionType>) => {
   const [selectedValue, setSelectValue] = useState<OptionType>();
+  const [displayNode, setDisplayNode] = useState<React.ReactNode>();
   const [open, setOpen] = useState(false);
   const handleClick = () => {
     setOpen((prevValue) => !prevValue);
@@ -71,27 +74,32 @@ const Select = <OptionType,>({
   const value = useMemo(
     () => ({
       selectedValue,
-      displayNode: null,
+      displayNode,
       selectValue: (value: OptionType) => {
         console.log(value);
         setSelectValue(value);
       },
+      setDisplayNode: (node: React.ReactNode) => {
+        setDisplayNode(node);
+      },
     }),
-    [selectedValue, setSelectValue]
+    [selectedValue, setSelectValue, displayNode]
   );
   return (
     <SelectContext.Provider value={value}>
-      <div
-        tabIndex={0}
-        className={styles["jui-dd-select"]}
-        onClick={handleClick}
-      >
-        {typeof defaultValue === "string" || typeof defaultValue === "number"
-          ? defaultValue
-          : placeholder}
-        {!open ? <FaChevronDown /> : <FaChevronUp />}
+      <div className={styles["jui-wrapper"]}>
+        <div
+          tabIndex={0}
+          className={styles["jui-dd-select"]}
+          onClick={handleClick}
+        >
+          {typeof defaultValue === "string" || typeof defaultValue === "number"
+            ? defaultValue
+            : placeholder}
+          {!open ? <FaChevronDown /> : <FaChevronUp />}
+        </div>
+        {open && <div className={styles["jui-dd"]}>{children}</div>}
       </div>
-      {open && <div className={styles["jui-dd"]}>{children}</div>}
     </SelectContext.Provider>
   );
 };
@@ -101,11 +109,11 @@ const Option = <OptionType,>({
   disabled,
   children,
 }: OptionProps<OptionType>) => {
-  const { selectedValue, selectValue } = useSelectContext();
-
+  const { selectedValue, selectValue, setDisplayNode } = useSelectContext();
   const handleSelect = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
     e.stopPropagation();
     selectValue(value);
+    setDisplayNode(children);
   };
 
   return (
