@@ -4,9 +4,13 @@ import React, {
   createContext,
   PropsWithChildren,
   useMemo,
+  useRef,
 } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaChevronDown } from "react-icons/fa";
 import styles from "./Select.module.scss";
+import { useOnClickOutside } from "../../hooks/useOnClickOutside";
+import { AnimatePresence, motion } from "framer-motion";
+import { collapse, containerFastCollapse, item } from "../../gestures/gestures";
 
 type SelectProps<OptionType> = PropsWithChildren<{
   defaultValue?: any;
@@ -67,8 +71,16 @@ const Select = <OptionType,>({
   const [selectedValue, setSelectValue] = useState<OptionType>();
   const [displayNode, setDisplayNode] = useState<React.ReactNode>();
   const [open, setOpen] = useState(false);
+  const selectRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(selectRef, () => setOpen(false));
+
   const handleClick = () => {
     setOpen((prevValue) => !prevValue);
+  };
+
+  const handleClear = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation();
+    setDisplayNode(null);
   };
 
   const value = useMemo(
@@ -76,15 +88,18 @@ const Select = <OptionType,>({
       selectedValue,
       displayNode,
       selectValue: (value: OptionType) => {
-        console.log(value);
         setSelectValue(value);
+        if (onChange) {
+          onChange(value);
+        }
       },
       setDisplayNode: (node: React.ReactNode) => {
         setDisplayNode(node);
       },
     }),
-    [selectedValue, setSelectValue, displayNode]
+    [selectedValue, setSelectValue, displayNode, onChange]
   );
+
   return (
     <SelectContext.Provider value={value}>
       <div className={styles["jui-wrapper"]}>
@@ -92,13 +107,40 @@ const Select = <OptionType,>({
           tabIndex={0}
           className={styles["jui-dd-select"]}
           onClick={handleClick}
+          ref={selectRef}
         >
-          {typeof defaultValue === "string" || typeof defaultValue === "number"
-            ? defaultValue
-            : placeholder}
-          {!open ? <FaChevronDown /> : <FaChevronUp />}
+          {!displayNode &&
+            (typeof defaultValue === "string" ||
+              typeof defaultValue === "number") &&
+            defaultValue}
+          {!displayNode &&
+            typeof (
+              defaultValue !== "string" || typeof defaultValue !== "number"
+            ) && <div className={styles["jui-placeholder"]}>{placeholder}</div>}
+          {!allowClear && displayNode && displayNode}
+          {allowClear && displayNode && (
+            <div className={styles["jui-clear"]}>
+              {displayNode}
+              <div className={styles["jui-close"]} onClick={handleClear} />
+            </div>
+          )}
+          <FaChevronDown />
         </div>
-        {open && <div className={styles["jui-dd"]}>{children}</div>}
+        <AnimatePresence initial={false} exitBeforeEnter={true}>
+          {open && (
+            <motion.div
+              className={styles["jui-dd"]}
+              initial='collapsed'
+              animate='open'
+              exit='collapsed'
+              variant={collapse}
+            >
+              <motion.div variants={containerFastCollapse}>
+                {children}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </SelectContext.Provider>
   );
@@ -117,7 +159,7 @@ const Option = <OptionType,>({
   };
 
   return (
-    <li
+    <motion.li
       className={
         disabled
           ? styles["jui-disabled"]
@@ -126,9 +168,10 @@ const Option = <OptionType,>({
           : styles["jui-item"]
       }
       onClick={handleSelect}
+      variants={item}
     >
       {children}
-    </li>
+    </motion.li>
   );
 };
 
