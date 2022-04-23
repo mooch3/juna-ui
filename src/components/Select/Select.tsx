@@ -5,7 +5,7 @@ import React, {
   PropsWithChildren,
   useMemo,
 } from "react";
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import styles from "./Select.module.scss";
 
 type SelectProps<OptionType> = PropsWithChildren<{
@@ -32,6 +32,7 @@ type OptGroupProps = PropsWithChildren<{
 
 type SelectCtx<OptionType> = {
   selectedValue: OptionType | null;
+  displayNode: React.ReactNode | null;
   selectValue: (value: any) => void;
 };
 
@@ -44,12 +45,13 @@ const useSelectContext = () => {
   return ctx;
 };
 
-const SelectContext = createContext<SelectCtx<any>>({
+const SelectContext = createContext<SelectCtx<unknown>>({
   selectedValue: null,
-  selectValue: (value: any) => {},
+  displayNode: null,
+  selectValue: (value: unknown) => {},
 });
 
-const Select = <OptionType extends any>({
+const Select = <OptionType,>({
   defaultValue,
   onChange,
   style,
@@ -65,31 +67,44 @@ const Select = <OptionType extends any>({
   const handleClick = () => {
     setOpen((prevValue) => !prevValue);
   };
+
   const value = useMemo(
-    () => ({ selectedValue, selectValue: () => setSelectValue }),
+    () => ({
+      selectedValue,
+      displayNode: null,
+      selectValue: (value: OptionType) => {
+        console.log(value);
+        setSelectValue(value);
+      },
+    }),
     [selectedValue, setSelectValue]
   );
   return (
     <SelectContext.Provider value={value}>
-      <div className={styles["jui-dd-select"]} onClick={handleClick}>
+      <div
+        tabIndex={0}
+        className={styles["jui-dd-select"]}
+        onClick={handleClick}
+      >
         {typeof defaultValue === "string" || typeof defaultValue === "number"
           ? defaultValue
           : placeholder}
-        <FaChevronDown />
-        {open && <div className={styles["jui-dd"]}>{children}</div>}
+        {!open ? <FaChevronDown /> : <FaChevronUp />}
       </div>
+      {open && <div className={styles["jui-dd"]}>{children}</div>}
     </SelectContext.Provider>
   );
 };
 
-const Option = <OptionType extends any>({
+const Option = <OptionType,>({
   value,
   disabled,
   children,
 }: OptionProps<OptionType>) => {
   const { selectedValue, selectValue } = useSelectContext();
 
-  const handleSelect = () => {
+  const handleSelect = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+    e.stopPropagation();
     selectValue(value);
   };
 
@@ -97,10 +112,10 @@ const Option = <OptionType extends any>({
     <li
       className={
         disabled
-          ? styles["juna-ui-disabled"]
+          ? styles["jui-disabled"]
           : value === selectedValue
-          ? styles["juna-ui-selected"]
-          : styles["juna-ui_item"]
+          ? styles["jui-selected"]
+          : styles["jui-item"]
       }
       onClick={handleSelect}
     >
