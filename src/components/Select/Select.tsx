@@ -26,7 +26,6 @@ type SelectProps<OptionType> = PropsWithChildren<{
 type OptionProps<OptionType> = PropsWithChildren<{
   value: OptionType;
   disabled?: boolean;
-  children?: React.ReactNode;
 }>;
 
 type OptGroupProps = PropsWithChildren<{
@@ -120,7 +119,7 @@ const Select = <OptionType,>({
           {!allowClear && displayNode && displayNode}
           {allowClear && displayNode && (
             <div className={styles["jui-clear"]}>
-              {displayNode}
+              <span>{displayNode}</span>
               <div className={styles["jui-close"]} onClick={handleClear} />
             </div>
           )}
