@@ -5,7 +5,6 @@ import React, {
   PropsWithChildren,
   useMemo,
   useRef,
-  useEffect,
   cloneElement,
 } from "react";
 import { FaChevronDown } from "react-icons/fa";
@@ -13,17 +12,29 @@ import styles from "./Select.module.scss";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { AnimatePresence, motion } from "framer-motion";
 import { collapse, item } from "../../gestures/gestures";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
-type SelectProps<OptionT> = {
+type BaseProps<OptionT> = {
   defaultValue?: any;
   onChange?: (value: OptionT) => void;
   style?: React.CSSProperties;
   filterOption?: boolean;
   allowClear?: boolean;
   loading?: boolean;
-  placeholder: string;
+  placeholder?: string;
   children: React.ReactNode;
+  multiSelect?: boolean;
 };
+
+interface MultiSelectProps<OptionT> extends BaseProps<OptionT> {
+  multiSelect: true;
+  allowClear: true;
+}
+
+interface SelectProps<OptionT> extends BaseProps<OptionT> {
+  multiSelect?: false;
+  allowClear?: boolean;
+}
 // show search and filterOption are required together
 type OptionProps<OptionT> = PropsWithChildren<{
   value: OptionT;
@@ -37,12 +48,16 @@ type OptGroupProps = PropsWithChildren<{
 
 type SelectCtx<OptionT> = {
   selectedValue: OptionT | null;
+  selectedValues?: OptionT[];
   displayNode: React.ReactNode | null;
   filteredChildren: React.ReactNode | null;
+  multiSelect?: boolean;
   selectValue: (value: any) => void;
+  selectValues: (value: any) => void;
   setDisplayNode: (child: React.ReactNode) => void;
+  setDisplayNodes: (child: React.ReactNode) => void;
 };
-
+// ** enforce context ** //
 const useSelectContext = () => {
   const ctx = useContext(SelectContext);
 
@@ -51,13 +66,17 @@ const useSelectContext = () => {
   }
   return ctx;
 };
-
+// ** declare context ** //
 const SelectContext = createContext<SelectCtx<unknown>>({
   selectedValue: null,
   displayNode: null,
   filteredChildren: null,
+  selectedValues: [],
+  multiSelect: false,
+  selectValues: (value: unknown) => {},
   selectValue: (value: unknown) => {},
   setDisplayNode: (child: React.ReactNode) => {},
+  setDisplayNodes: (child: React.ReactNode) => {},
 });
 
 const Select = <OptionT,>({
@@ -69,29 +88,37 @@ const Select = <OptionT,>({
   loading,
   placeholder,
   children,
-}: SelectProps<OptionT>) => {
-  const [selectedValue, setSelectValue] = useState<OptionT>();
+  multiSelect,
+}: SelectProps<OptionT> | MultiSelectProps<OptionT>) => {
+  const [selectedValue, setSelectValue] = useState<OptionT | null>();
+  const [selectedValues, setSelectedValues] = useState<OptionT[]>([]);
   const [displayNode, setDisplayNode] = useState<React.ReactNode>();
+  const [displayNodes, setDisplayNodes] = useState<React.ReactNode[]>([]);
   const [filteredChildren, setFilteredChildren] = useState<React.ReactNode>();
   const [open, setOpen] = useState(false);
+
   const selectRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
   useOnClickOutside(selectRef, () => setOpen(false));
 
   const handleClick = () => {
+    if (loading) {
+      return;
+    }
     setOpen((prevValue) => !prevValue);
   };
 
   const handleClear = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
     setDisplayNode(null);
+    setSelectValue(null);
   };
 
-  const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { value },
-    } = e;
-    console.log(value);
+  const handleFilter = () => {
+    if (loading) {
+      return;
+    }
     if (inputRef.current) {
       const filteredOptions = React.Children.toArray(children)
         .filter(
@@ -106,18 +133,19 @@ const Select = <OptionT,>({
           if (!React.isValidElement(child)) {
             throw new Error("This is not a valid react element ");
           }
-          return cloneElement(child, { ...child.props });
+          return cloneElement(child);
         });
       setFilteredChildren(filteredOptions);
-      console.log(filteredOptions);
     }
   };
 
   const value = useMemo(
     () => ({
       selectedValue,
+      selectedValues,
       displayNode,
       filteredChildren,
+      multiSelect,
       selectValue: (value: OptionT) => {
         if (inputRef.current) {
           inputRef.current.value = "";
@@ -128,11 +156,26 @@ const Select = <OptionT,>({
           onChange(value);
         }
       },
+      selectValues: (value: OptionT) => {
+        setSelectedValues((prevValue) => [...prevValue, value]);
+      },
       setDisplayNode: (node: React.ReactNode) => {
         setDisplayNode(node);
       },
+      setDisplayNodes: (node: React.ReactNode) => {
+        setDisplayNodes((prevValue) => [...prevValue, node]);
+      },
     }),
-    [selectedValue, setSelectValue, displayNode, filteredChildren, onChange]
+    [
+      selectedValue,
+      setSelectValue,
+      selectedValues,
+      setSelectedValues,
+      displayNode,
+      multiSelect,
+      filteredChildren,
+      onChange,
+    ]
   );
 
   return (
@@ -159,19 +202,22 @@ const Select = <OptionT,>({
           {!allowClear && displayNode && displayNode}
           {allowClear && displayNode && (
             <div className={styles["jui__clear"]}>
-              <span>{displayNode}</span>
+              <span aria-label='Selected option'>{displayNode}</span>
               <div className={styles["jui__close"]} onClick={handleClear} />
             </div>
           )}
+          {/* TODO: map display nodes here with jui clear */}
           {!displayNode && filterOption && (
             <input
+              disabled={loading}
+              placeholder={loading ? "Loading..." : "Search..."}
               aria-label='filter options'
               type='text'
               ref={inputRef}
               onChange={handleFilter}
             />
           )}
-          <FaChevronDown />
+          {loading ? <LoadingSpinner /> : <FaChevronDown />}
         </div>
         <AnimatePresence initial={"collapsed"} exitBeforeEnter={true}>
           {open && (
@@ -199,15 +245,23 @@ const Option = <OptionT,>({
   disabled,
   children,
 }: OptionProps<OptionT>) => {
-  const { selectedValue, selectValue, setDisplayNode } = useSelectContext();
+  const {
+    selectedValue,
+    selectValue,
+    setDisplayNode,
+    setDisplayNodes,
+    multiSelect,
+  } = useSelectContext();
   const handleSelect = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
     e.stopPropagation();
+    if (multiSelect) {
+      setDisplayNodes(children);
+      // put select values into an array
+      return;
+    }
     selectValue(value);
     setDisplayNode(children);
   };
-  useEffect(() => {
-    console.log(value === selectedValue);
-  }, [selectedValue, value]);
 
   return (
     <motion.li
