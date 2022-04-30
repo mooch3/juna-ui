@@ -34,14 +34,14 @@ export const containerFastCollapse = {
 
 export const collapse = {
   open: {
-    opacity: 1,
     height: "auto",
     transition: {
+      staggerChildren: 0.1,
+      staggerDirection: 1,
       duration: 0.25,
     },
   },
   collapsed: {
-    opacity: 0,
     height: 0,
     transition: {
       duration: 0.25,

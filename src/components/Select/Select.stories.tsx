@@ -6,7 +6,7 @@ const stories = storiesOf("junaui/Select", module);
 
 stories.add("Select", () => {
   return (
-    <Select placeholder='Select an item...' allowClear>
+    <Select placeholder='Select an item...' allowClear filterOption>
       <Select.Option value={{ name: "yis" }} disabled>
         A thing
       </Select.Option>

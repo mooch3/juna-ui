@@ -5,26 +5,28 @@ import React, {
   PropsWithChildren,
   useMemo,
   useRef,
+  useEffect,
+  cloneElement,
 } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import styles from "./Select.module.scss";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { AnimatePresence, motion } from "framer-motion";
-import { collapse, containerFastCollapse, item } from "../../gestures/gestures";
+import { collapse, item } from "../../gestures/gestures";
 
-type SelectProps<OptionType> = PropsWithChildren<{
+type SelectProps<OptionT> = {
   defaultValue?: any;
-  onChange?: (value: OptionType) => void;
+  onChange?: (value: OptionT) => void;
   style?: React.CSSProperties;
-  showSearch?: boolean;
-  filterOption?: (input: string, option: React.ReactChild) => void;
+  filterOption?: boolean;
   allowClear?: boolean;
   loading?: boolean;
   placeholder: string;
-}>;
-
-type OptionProps<OptionType> = PropsWithChildren<{
-  value: OptionType;
+  children: React.ReactNode;
+};
+// show search and filterOption are required together
+type OptionProps<OptionT> = PropsWithChildren<{
+  value: OptionT;
   disabled?: boolean;
 }>;
 
@@ -33,9 +35,10 @@ type OptGroupProps = PropsWithChildren<{
   children: React.ReactNode;
 }>;
 
-type SelectCtx<OptionType> = {
-  selectedValue: OptionType | null;
+type SelectCtx<OptionT> = {
+  selectedValue: OptionT | null;
   displayNode: React.ReactNode | null;
+  filteredChildren: React.ReactNode | null;
   selectValue: (value: any) => void;
   setDisplayNode: (child: React.ReactNode) => void;
 };
@@ -52,25 +55,27 @@ const useSelectContext = () => {
 const SelectContext = createContext<SelectCtx<unknown>>({
   selectedValue: null,
   displayNode: null,
+  filteredChildren: null,
   selectValue: (value: unknown) => {},
   setDisplayNode: (child: React.ReactNode) => {},
 });
 
-const Select = <OptionType,>({
+const Select = <OptionT,>({
   defaultValue,
   onChange,
   style,
-  showSearch,
   filterOption,
   allowClear,
   loading,
   placeholder,
   children,
-}: SelectProps<OptionType>) => {
-  const [selectedValue, setSelectValue] = useState<OptionType>();
+}: SelectProps<OptionT>) => {
+  const [selectedValue, setSelectValue] = useState<OptionT>();
   const [displayNode, setDisplayNode] = useState<React.ReactNode>();
+  const [filteredChildren, setFilteredChildren] = useState<React.ReactNode>();
   const [open, setOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   useOnClickOutside(selectRef, () => setOpen(false));
 
   const handleClick = () => {
@@ -82,11 +87,42 @@ const Select = <OptionType,>({
     setDisplayNode(null);
   };
 
+  const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { value },
+    } = e;
+    console.log(value);
+    if (inputRef.current) {
+      const filteredOptions = React.Children.toArray(children)
+        .filter(
+          (child) =>
+            React.isValidElement(child) &&
+            child.props.children
+              .toString()
+              .toLowerCase()
+              .indexOf(inputRef.current!.value.toLowerCase()) > -1
+        )
+        .map((child) => {
+          if (!React.isValidElement(child)) {
+            throw new Error("This is not a valid react element ");
+          }
+          return cloneElement(child, { ...child.props });
+        });
+      setFilteredChildren(filteredOptions);
+      console.log(filteredOptions);
+    }
+  };
+
   const value = useMemo(
     () => ({
       selectedValue,
       displayNode,
-      selectValue: (value: OptionType) => {
+      filteredChildren,
+      selectValue: (value: OptionT) => {
+        if (inputRef.current) {
+          inputRef.current.value = "";
+          setFilteredChildren(null);
+        }
         setSelectValue(value);
         if (onChange) {
           onChange(value);
@@ -96,46 +132,59 @@ const Select = <OptionType,>({
         setDisplayNode(node);
       },
     }),
-    [selectedValue, setSelectValue, displayNode, onChange]
+    [selectedValue, setSelectValue, displayNode, filteredChildren, onChange]
   );
 
   return (
     <SelectContext.Provider value={value}>
-      <div className={styles["jui-wrapper"]}>
+      <div className={styles["jui__wrapper"]}>
         <div
           tabIndex={0}
-          className={styles["jui-dd-select"]}
+          className={styles["jui__dd--select"]}
           onClick={handleClick}
           ref={selectRef}
         >
           {!displayNode &&
+            !filterOption &&
             (typeof defaultValue === "string" ||
               typeof defaultValue === "number") &&
             defaultValue}
           {!displayNode &&
+            !filterOption &&
             typeof (
               defaultValue !== "string" || typeof defaultValue !== "number"
-            ) && <div className={styles["jui-placeholder"]}>{placeholder}</div>}
+            ) && (
+              <div className={styles["jui__placeholder"]}>{placeholder}</div>
+            )}
           {!allowClear && displayNode && displayNode}
           {allowClear && displayNode && (
-            <div className={styles["jui-clear"]}>
+            <div className={styles["jui__clear"]}>
               <span>{displayNode}</span>
-              <div className={styles["jui-close"]} onClick={handleClear} />
+              <div className={styles["jui__close"]} onClick={handleClear} />
             </div>
+          )}
+          {!displayNode && filterOption && (
+            <input
+              aria-label='filter options'
+              type='text'
+              ref={inputRef}
+              onChange={handleFilter}
+            />
           )}
           <FaChevronDown />
         </div>
-        <AnimatePresence initial={false} exitBeforeEnter={true}>
+        <AnimatePresence initial={"collapsed"} exitBeforeEnter={true}>
           {open && (
+            // clone elements as children, save them to context, then filter context on change
             <motion.div
-              className={styles["jui-dd"]}
+              className={styles["jui__dd"]}
               initial='collapsed'
               animate='open'
               exit='collapsed'
               variant={collapse}
             >
-              <motion.div variants={containerFastCollapse}>
-                {children}
+              <motion.div variants={collapse}>
+                {filteredChildren || children}
               </motion.div>
             </motion.div>
           )}
@@ -145,28 +194,37 @@ const Select = <OptionType,>({
   );
 };
 
-const Option = <OptionType,>({
+const Option = <OptionT,>({
   value,
   disabled,
   children,
-}: OptionProps<OptionType>) => {
+}: OptionProps<OptionT>) => {
   const { selectedValue, selectValue, setDisplayNode } = useSelectContext();
   const handleSelect = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
     e.stopPropagation();
     selectValue(value);
     setDisplayNode(children);
   };
+  useEffect(() => {
+    console.log(value === selectedValue);
+  }, [selectedValue, value]);
 
   return (
     <motion.li
+      aria-label={`Select ${children}`}
       className={
         disabled
-          ? styles["jui-disabled"]
+          ? styles["jui__item--disabled"]
           : value === selectedValue
-          ? styles["jui-selected"]
-          : styles["jui-item"]
+          ? styles["jui__item--selected"]
+          : styles["jui__item"]
       }
-      onClick={handleSelect}
+      onClick={
+        !disabled
+          ? handleSelect
+          : (e: React.MouseEvent<HTMLLIElement, MouseEvent>) =>
+              e.stopPropagation()
+      }
       variants={item}
     >
       {children}
