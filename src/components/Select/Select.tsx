@@ -55,7 +55,7 @@ type SelectCtx<OptionT> = {
   selectValue: (value: any) => void;
   selectValues: (value: any) => void;
   setDisplayNode: (child: React.ReactNode) => void;
-  setDisplayNodes: (child: React.ReactNode) => void;
+  setDisplayNodes: (nodeValue: [React.ReactNode, any]) => void;
 };
 // ** enforce context ** //
 const useSelectContext = () => {
@@ -76,7 +76,7 @@ const SelectContext = createContext<SelectCtx<unknown>>({
   selectValues: (value: unknown) => {},
   selectValue: (value: unknown) => {},
   setDisplayNode: (child: React.ReactNode) => {},
-  setDisplayNodes: (child: React.ReactNode) => {},
+  setDisplayNodes: (nodeValue: [React.ReactNode, unknown]) => {},
 });
 
 const Select = <OptionT,>({
@@ -93,7 +93,9 @@ const Select = <OptionT,>({
   const [selectedValue, setSelectValue] = useState<OptionT | null>();
   const [selectedValues, setSelectedValues] = useState<OptionT[]>([]);
   const [displayNode, setDisplayNode] = useState<React.ReactNode>();
-  const [displayNodes, setDisplayNodes] = useState<React.ReactNode[]>([]);
+  const [displayNodes, setDisplayNodes] = useState<
+    [React.ReactNode, OptionT][]
+  >([]);
   const [filteredChildren, setFilteredChildren] = useState<React.ReactNode>();
   const [open, setOpen] = useState(false);
 
@@ -113,6 +115,22 @@ const Select = <OptionT,>({
     e.stopPropagation();
     setDisplayNode(null);
     setSelectValue(null);
+  };
+
+  const handleRemoveNode = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    node: React.ReactNode,
+    value: OptionT
+  ) => {
+    e.stopPropagation();
+    const remainingNodes = displayNodes.filter(
+      ([childNode]) => childNode !== node
+    );
+    const remainingValues = selectedValues.filter(
+      (selectedValue) => selectedValue !== value
+    );
+    setSelectedValues(remainingValues);
+    setDisplayNodes(remainingNodes);
   };
 
   const handleFilter = () => {
@@ -157,24 +175,44 @@ const Select = <OptionT,>({
         }
       },
       selectValues: (value: OptionT) => {
+        const duplicate = displayNodes.some(
+          ([, oldValue]) => value === oldValue
+        );
+        if (duplicate) {
+          // remove from displayNodes and selectValues
+          const remainingNodes = displayNodes.filter(
+            ([, oldValue]) => oldValue !== value
+          );
+          const remainingValues = selectedValues.filter(
+            (selectedValue) => selectedValue !== value
+          );
+          setSelectedValues(remainingValues);
+          setDisplayNodes(remainingNodes);
+          return;
+        }
         setSelectedValues((prevValue) => [...prevValue, value]);
       },
       setDisplayNode: (node: React.ReactNode) => {
         setDisplayNode(node);
       },
-      setDisplayNodes: (node: React.ReactNode) => {
-        setDisplayNodes((prevValue) => [...prevValue, node]);
+      setDisplayNodes: (nodeValue: [React.ReactNode, OptionT]) => {
+        console.log(displayNodes.includes(nodeValue));
+        const [newNode] = nodeValue;
+        const duplicate = displayNodes.some(([node]) => node === newNode);
+        if (duplicate) {
+          return;
+        }
+        setDisplayNodes((prevValue) => [...prevValue, nodeValue]);
       },
     }),
     [
       selectedValue,
-      setSelectValue,
       selectedValues,
-      setSelectedValues,
       displayNode,
-      multiSelect,
       filteredChildren,
+      multiSelect,
       onChange,
+      displayNodes,
     ]
   );
 
@@ -206,8 +244,18 @@ const Select = <OptionT,>({
               <div className={styles["jui__close"]} onClick={handleClear} />
             </div>
           )}
+          {displayNodes &&
+            displayNodes.map(([node, value], index) => (
+              <div className={styles["jui__clear"]} key={index}>
+                <span aria-label='Selected option'>{node}</span>
+                <div
+                  className={styles["jui__close"]}
+                  onClick={(e) => handleRemoveNode(e, node, value)}
+                />
+              </div>
+            ))}
           {/* TODO: map display nodes here with jui clear */}
-          {!displayNode && filterOption && (
+          {!displayNode && !displayNodes.length && filterOption && (
             <input
               disabled={loading}
               placeholder={loading ? "Loading..." : "Search..."}
@@ -221,7 +269,6 @@ const Select = <OptionT,>({
         </div>
         <AnimatePresence initial={"collapsed"} exitBeforeEnter={true}>
           {open && (
-            // clone elements as children, save them to context, then filter context on change
             <motion.div
               className={styles["jui__dd"]}
               initial='collapsed'
@@ -247,7 +294,9 @@ const Option = <OptionT,>({
 }: OptionProps<OptionT>) => {
   const {
     selectedValue,
+    selectedValues,
     selectValue,
+    selectValues,
     setDisplayNode,
     setDisplayNodes,
     multiSelect,
@@ -255,7 +304,8 @@ const Option = <OptionT,>({
   const handleSelect = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
     e.stopPropagation();
     if (multiSelect) {
-      setDisplayNodes(children);
+      setDisplayNodes([children, value]);
+      selectValues(value);
       // put select values into an array
       return;
     }
@@ -263,16 +313,25 @@ const Option = <OptionT,>({
     setDisplayNode(children);
   };
 
+  let className = styles["jui__item"];
+  if (disabled) {
+    className = styles["jui__item--disabled"];
+  } else {
+    if (multiSelect) {
+      if (selectedValues?.includes(value)) {
+        className = styles["jui__item--selected"];
+      }
+    } else {
+      if (value === selectedValue) {
+        className = styles["jui__item--selected"];
+      }
+    }
+  }
+
   return (
     <motion.li
       aria-label={`Select ${children}`}
-      className={
-        disabled
-          ? styles["jui__item--disabled"]
-          : value === selectedValue
-          ? styles["jui__item--selected"]
-          : styles["jui__item"]
-      }
+      className={className}
       onClick={
         !disabled
           ? handleSelect
