@@ -75,5 +75,25 @@ stories
       <Select.Option value={{ name: "baz" }}>Derek</Select.Option>
       <Select.Option value={{ name: "braz" }}>Ty</Select.Option>
       <Select.Option value={{ name: "tar" }}>Yimghe</Select.Option>
+      <Select.Option value={{ name: "tar" }}>
+        Juna Ann Marie Michele Zisette-Smith
+      </Select.Option>
+    </Select>
+  ))
+  .add("Default value", () => (
+    <Select
+      placeholder='Select an item...'
+      onChange={(value) => console.log(value)}
+      defaultValue={mock}
+      allowClear
+    >
+      <Select.Option value={mock} disabled>
+        Perry
+      </Select.Option>
+      <Select.Option value={{ name: "bar" }}>Thing 2</Select.Option>
+      <Select.Option value={{ name: "foo" }}>John</Select.Option>
+      <Select.Option value={{ name: "baz" }}>Derek</Select.Option>
+      <Select.Option value={mock}>Ty</Select.Option>
+      <Select.Option value={{ name: "tar" }}>Yimghe</Select.Option>
     </Select>
   ));

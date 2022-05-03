@@ -6,6 +6,7 @@ import userEvent from "@testing-library/user-event";
 
 const mockChange = jest.fn();
 const mockValue = "testing 123";
+const initialValue = { name: "breh" };
 
 describe("Select component", () => {
   test("adds the display node as the selected item when a dd item is selected", async () => {
@@ -142,7 +143,7 @@ describe("Select component", () => {
         onChange={mockChange}
       >
         <Select.Option value={{ name: "yis" }}>A thing</Select.Option>
-        <Select.Option value={{ name: "breh" }}>Thing 2</Select.Option>
+        <Select.Option value={initialValue}>Thing 2</Select.Option>
         <Select.Option value={{ name: "breh" }}>
           Thing 2 that has a long name that is many characters
         </Select.Option>
@@ -156,5 +157,23 @@ describe("Select component", () => {
     userEvent.click(itemTwo);
     const allItems = await screen.findAllByLabelText("Selected options");
     expect(allItems).toHaveLength(2);
+  });
+  test("allows a defaultValue to be set", async () => {
+    render(
+      <Select
+        placeholder='Select an item...'
+        defaultValue={initialValue}
+        allowClear
+        onChange={mockChange}
+      >
+        <Select.Option value={{ name: "yis" }}>A thing</Select.Option>
+        <Select.Option value={initialValue}>Thing 2</Select.Option>
+        <Select.Option value={{ name: "breh" }}>
+          Thing 2 that has a long name that is many characters
+        </Select.Option>
+      </Select>
+    );
+    const defaultValue = await screen.findByText("Thing 2");
+    expect(defaultValue).toBeInTheDocument();
   });
 });

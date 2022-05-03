@@ -5,6 +5,7 @@ import React, {
   PropsWithChildren,
   useMemo,
   useRef,
+  useEffect,
   cloneElement,
 } from "react";
 import { FaChevronDown } from "react-icons/fa";
@@ -14,8 +15,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { collapse, container, item } from "../../gestures/gestures";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
-// TODO: if default value is used find the the select option with the corresponding value
-// TODO: and set it as selected
 // TODO: Add opt group to group options together under subheaders
 type BaseProps<OptionT> = {
   defaultValue?: OptionT;
@@ -31,6 +30,7 @@ type BaseProps<OptionT> = {
 interface MultiSelectProps<OptionT> extends BaseProps<OptionT> {
   multiSelect: true;
   allowClear: true;
+  // no support for defaultValue with multiselect yet
   defaultValue?: never;
 }
 
@@ -38,7 +38,7 @@ interface SelectProps<OptionT> extends BaseProps<OptionT> {
   multiSelect?: false;
   allowClear?: boolean;
 }
-// show search and filterOption are required together
+
 type OptionProps<OptionT> = PropsWithChildren<{
   value: OptionT;
   disabled?: boolean;
@@ -96,10 +96,28 @@ const Select = <OptionT,>({
   const [filteredChildren, setFilteredChildren] = useState<React.ReactNode>();
   const [open, setOpen] = useState(false);
 
+  const initializeDefault = useRef(true);
   const selectRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useOnClickOutside(selectRef, () => setOpen(false));
+
+  useEffect(() => {
+    // ** initialize the defaultValue after the children are rendered and if a defaultValue is provided ** //
+    //  we could do this on mount, but if a user selects a default value THEN renders children from an API things could get weird
+    if (initializeDefault.current && defaultValue && children) {
+      setSelectValue(defaultValue);
+      React.Children.forEach(children, (child) => {
+        if (!React.isValidElement(child)) {
+          return;
+        }
+        if (child.props.value === defaultValue) {
+          setDisplayNode(child.props.children);
+        }
+      });
+      initializeDefault.current = false;
+    }
+  }, [defaultValue, children]);
 
   const handleClick = () => {
     if (loading) {
@@ -253,7 +271,6 @@ const Select = <OptionT,>({
             </div>
           )}
           {displayNodes && (
-            // TODO: flex wrapper
             <div className={styles["jui__items--wrap"]}>
               {displayNodes.map(([node, value], index) => (
                 <div className={styles["jui__clear"]} key={index}>
