@@ -228,12 +228,20 @@ const Select = <OptionT,>({
               typeof defaultValue === "number") &&
             defaultValue}
           {!displayNode &&
+            !displayNodes.length &&
             !filterOption &&
             (typeof defaultValue !== "string" ||
               typeof defaultValue !== "number") && (
               <div className={styles["jui__placeholder"]}>{placeholder}</div>
             )}
-          {!allowClear && displayNode && displayNode}
+          {!allowClear && displayNode && (
+            <span
+              className={styles["jui__item--single"]}
+              aria-label='Selected option'
+            >
+              {displayNode}
+            </span>
+          )}
           {allowClear && displayNode && (
             <div className={styles["jui__clear"]}>
               <span aria-label='Selected option'>{displayNode}</span>
@@ -244,17 +252,20 @@ const Select = <OptionT,>({
               />
             </div>
           )}
-          {displayNodes &&
+          {displayNodes && (
             // TODO: flex wrapper
-            displayNodes.map(([node, value], index) => (
-              <div className={styles["jui__clear"]} key={index}>
-                <span aria-label='Selected options'>{node}</span>
-                <div
-                  className={styles["jui__close"]}
-                  onClick={(e) => handleRemoveNode(e, node, value)}
-                />
-              </div>
-            ))}
+            <div className={styles["jui__items--wrap"]}>
+              {displayNodes.map(([node, value], index) => (
+                <div className={styles["jui__clear"]} key={index}>
+                  <span aria-label='Selected options'>{node}</span>
+                  <div
+                    className={styles["jui__close"]}
+                    onClick={(e) => handleRemoveNode(e, node, value)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
           {!displayNode && !displayNodes.length && filterOption && (
             <input
               disabled={loading}
@@ -276,7 +287,10 @@ const Select = <OptionT,>({
               exit='collapsed'
               variants={container}
             >
-              <motion.div variants={collapse}>
+              <motion.div
+                variants={collapse}
+                className={styles["jui__dd--inner"]}
+              >
                 {filteredChildren || children}
               </motion.div>
             </motion.div>

@@ -8,6 +8,17 @@
 @mixin jitem() {
   font-size: 0.75rem;
   padding: 0.25rem;
+  width: calc(100% - 0.5rem);
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+}
+
+@mixin span-wrap() {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: clamp(25%, 200px, 80%);
 }
 
 .jui__wrapper {
@@ -15,9 +26,16 @@
   max-width: 200px;
   svg {
     font-weight: 200;
+    font-size: 1rem;
+    min-width: 1rem;
   }
 }
 
+.jui__item--single {
+  @include flexy(row, flex-start, center);
+  @include span-wrap();
+  height: 22.5px;
+}
 .jui__dd--select {
   @include flexy(row, space-between, center);
   border: 1px solid var(--bold-font-color);
@@ -27,7 +45,7 @@
   padding: 0.25rem;
   font-family: "Lato";
   font-size: 0.75rem;
-
+  min-height: 22.5px;
   input {
     outline: none;
     border: none;
@@ -52,7 +70,7 @@
 }
 
 .jui__dd {
-  @include flexy(column, center, center);
+  @include flexy(column, center, flex-start);
   position: absolute;
   top: 100%;
   left: 15px;
@@ -66,12 +84,28 @@
   z-index: 10000;
 }
 
+.jui__dd--inner {
+  @include flexy(column, center, flex-start);
+  height: calc(100% - 1rem);
+  width: 100%;
+}
+
+.jui__items--wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+}
+
 .jui__item {
   @include jitem();
   cursor: pointer;
   &:hover {
     background-color: var(--focus);
     color: white;
+    width: calc(100% - 0.5rem);
+    width: -moz-available;
+    width: -webkit-fill-available;
+    width: fill-available;
   }
 }
 
@@ -93,16 +127,13 @@
   border-radius: 16px;
   padding: 0.25rem 0.5rem;
   max-width: 80%;
-  min-width: 75px;
-  flex: 1 1 75px;
+  min-width: 60px;
+  flex: 1 1 60px;
   position: relative;
   font-size: 0.75rem;
   overflow: hidden;
   & span {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    width: clamp(25%, 200px, 80%);
+    @include span-wrap();
   }
 }
 

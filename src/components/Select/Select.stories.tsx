@@ -68,11 +68,12 @@ stories
       allowClear
     >
       <Select.Option value={mock} disabled>
-        A thing
+        Perry
       </Select.Option>
-      <Select.Option value={{ name: "breh" }}>Thing 2</Select.Option>
-      <Select.Option value={{ name: "breh" }}>
-        Thing 2 that has a long name that is many characters
-      </Select.Option>
+      <Select.Option value={{ name: "bar" }}>Thing 2</Select.Option>
+      <Select.Option value={{ name: "foo" }}>John</Select.Option>
+      <Select.Option value={{ name: "baz" }}>Derek</Select.Option>
+      <Select.Option value={{ name: "braz" }}>Ty</Select.Option>
+      <Select.Option value={{ name: "tar" }}>Yimghe</Select.Option>
     </Select>
   ));
