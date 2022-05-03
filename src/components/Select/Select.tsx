@@ -11,13 +11,12 @@ import { FaChevronDown } from "react-icons/fa";
 import styles from "./Select.module.scss";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { AnimatePresence, motion } from "framer-motion";
-import { collapse, item } from "../../gestures/gestures";
+import { collapse, container, item } from "../../gestures/gestures";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 type BaseProps<OptionT> = {
   defaultValue?: any;
   onChange?: (value: OptionT) => void;
-  style?: React.CSSProperties;
   filterOption?: boolean;
   allowClear?: boolean;
   loading?: boolean;
@@ -82,7 +81,6 @@ const SelectContext = createContext<SelectCtx<unknown>>({
 const Select = <OptionT,>({
   defaultValue,
   onChange,
-  style,
   filterOption,
   allowClear,
   loading,
@@ -137,7 +135,7 @@ const Select = <OptionT,>({
     if (loading) {
       return;
     }
-    if (inputRef.current) {
+    if (inputRef?.current) {
       const filteredOptions = React.Children.toArray(children)
         .filter(
           (child) =>
@@ -165,7 +163,7 @@ const Select = <OptionT,>({
       filteredChildren,
       multiSelect,
       selectValue: (value: OptionT) => {
-        if (inputRef.current) {
+        if (inputRef && inputRef?.current) {
           inputRef.current.value = "";
           setFilteredChildren(null);
         }
@@ -196,7 +194,6 @@ const Select = <OptionT,>({
         setDisplayNode(node);
       },
       setDisplayNodes: (nodeValue: [React.ReactNode, OptionT]) => {
-        console.log(displayNodes.includes(nodeValue));
         const [newNode] = nodeValue;
         const duplicate = displayNodes.some(([node]) => node === newNode);
         if (duplicate) {
@@ -224,6 +221,7 @@ const Select = <OptionT,>({
           className={styles["jui__dd--select"]}
           onClick={handleClick}
           ref={selectRef}
+          aria-label='Open drop down'
         >
           {!displayNode &&
             !filterOption &&
@@ -245,16 +243,16 @@ const Select = <OptionT,>({
             </div>
           )}
           {displayNodes &&
+            // TODO: flex wrapper
             displayNodes.map(([node, value], index) => (
               <div className={styles["jui__clear"]} key={index}>
-                <span aria-label='Selected option'>{node}</span>
+                <span aria-label='Selected options'>{node}</span>
                 <div
                   className={styles["jui__close"]}
                   onClick={(e) => handleRemoveNode(e, node, value)}
                 />
               </div>
             ))}
-          {/* TODO: map display nodes here with jui clear */}
           {!displayNode && !displayNodes.length && filterOption && (
             <input
               disabled={loading}
@@ -267,14 +265,14 @@ const Select = <OptionT,>({
           )}
           {loading ? <LoadingSpinner /> : <FaChevronDown />}
         </div>
-        <AnimatePresence initial={"collapsed"} exitBeforeEnter={true}>
+        <AnimatePresence>
           {open && (
             <motion.div
               className={styles["jui__dd"]}
               initial='collapsed'
               animate='open'
               exit='collapsed'
-              variant={collapse}
+              variants={container}
             >
               <motion.div variants={collapse}>
                 {filteredChildren || children}
