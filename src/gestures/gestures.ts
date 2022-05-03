@@ -25,15 +25,6 @@ export const item = {
   collapsed: { opacity: 0 },
 };
 
-export const containerFastCollapse = {
-  open: {
-    opacity: 1,
-  },
-  collapsed: {
-    opacity: 0,
-  },
-};
-
 export const collapse = {
   open: {
     height: "auto",

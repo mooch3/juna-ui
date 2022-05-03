@@ -108,10 +108,53 @@ describe("Select component", () => {
       </Select>
     );
     const input = screen.getByLabelText("filter options");
-
     userEvent.type(input, "afsafs");
     userEvent.click(input);
     const item = screen.queryByLabelText("Select A thing");
     expect(item).not.toBeInTheDocument();
+  });
+  test("users can remove selected option with allow clear", async () => {
+    render(
+      <Select placeholder='Select an item...' allowClear onChange={mockChange}>
+        <Select.Option value={{ name: "yis" }}>A thing</Select.Option>
+        <Select.Option value={{ name: "breh" }}>Thing 2</Select.Option>
+        <Select.Option value={{ name: "breh" }}>
+          Thing 2 that has a long name that is many characters
+        </Select.Option>
+      </Select>
+    );
+    const button = screen.getByLabelText("Open drop down");
+    userEvent.click(button);
+    const item = await screen.findByLabelText("Select A thing");
+    userEvent.click(item);
+    const selected = screen.queryByLabelText("Selected option");
+    const remove = await screen.findByLabelText("Remove option");
+    expect(selected).toBeInTheDocument();
+    userEvent.click(remove);
+    expect(selected).not.toBeInTheDocument();
+  });
+  test("allows users to have multi select", async () => {
+    render(
+      <Select
+        placeholder='Select an item...'
+        multiSelect
+        allowClear
+        onChange={mockChange}
+      >
+        <Select.Option value={{ name: "yis" }}>A thing</Select.Option>
+        <Select.Option value={{ name: "breh" }}>Thing 2</Select.Option>
+        <Select.Option value={{ name: "breh" }}>
+          Thing 2 that has a long name that is many characters
+        </Select.Option>
+      </Select>
+    );
+    const button = screen.getByLabelText("Open drop down");
+    userEvent.click(button);
+    const item = await screen.findByLabelText("Select A thing");
+    userEvent.click(item);
+    const itemTwo = await screen.findByLabelText("Select Thing 2");
+    userEvent.click(itemTwo);
+    const allItems = await screen.findAllByLabelText("Selected options");
+    expect(allItems).toHaveLength(2);
   });
 });

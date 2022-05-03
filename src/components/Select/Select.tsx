@@ -14,8 +14,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { collapse, container, item } from "../../gestures/gestures";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
+// TODO: if default value is used find the the select option with the corresponding value
+// TODO: and set it as selected
+// TODO: Add opt group to group options together under subheaders
 type BaseProps<OptionT> = {
-  defaultValue?: any;
+  defaultValue?: OptionT;
   onChange?: (value: OptionT) => void;
   filterOption?: boolean;
   allowClear?: boolean;
@@ -28,6 +31,7 @@ type BaseProps<OptionT> = {
 interface MultiSelectProps<OptionT> extends BaseProps<OptionT> {
   multiSelect: true;
   allowClear: true;
+  defaultValue?: never;
 }
 
 interface SelectProps<OptionT> extends BaseProps<OptionT> {
@@ -38,11 +42,6 @@ interface SelectProps<OptionT> extends BaseProps<OptionT> {
 type OptionProps<OptionT> = PropsWithChildren<{
   value: OptionT;
   disabled?: boolean;
-}>;
-
-type OptGroupProps = PropsWithChildren<{
-  label: string;
-  children: React.ReactNode;
 }>;
 
 type SelectCtx<OptionT> = {
@@ -230,16 +229,19 @@ const Select = <OptionT,>({
             defaultValue}
           {!displayNode &&
             !filterOption &&
-            typeof (
-              defaultValue !== "string" || typeof defaultValue !== "number"
-            ) && (
+            (typeof defaultValue !== "string" ||
+              typeof defaultValue !== "number") && (
               <div className={styles["jui__placeholder"]}>{placeholder}</div>
             )}
           {!allowClear && displayNode && displayNode}
           {allowClear && displayNode && (
             <div className={styles["jui__clear"]}>
               <span aria-label='Selected option'>{displayNode}</span>
-              <div className={styles["jui__close"]} onClick={handleClear} />
+              <div
+                className={styles["jui__close"]}
+                aria-label='Remove option'
+                onClick={handleClear}
+              />
             </div>
           )}
           {displayNodes &&
@@ -343,16 +345,6 @@ const Option = <OptionT,>({
   );
 };
 
-const OptGroup = ({ label, children }: OptGroupProps) => {
-  return (
-    <ul>
-      <label>{label}</label>
-      <div>{children}</div>
-    </ul>
-  );
-};
-
 Select.Option = Option;
-Select.OptGroup = OptGroup;
 
 export default Select;
