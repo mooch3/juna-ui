@@ -1,9 +1,19 @@
 import React from "react";
 import styles from "./LoadingSpinner.module.scss";
 
-const LoadingSpinner = () => {
+type LoadingSpinnerProps = {
+  large?: boolean;
+};
+
+const LoadingSpinner = ({ large }: LoadingSpinnerProps) => {
   return (
-    <div className={styles["lds-ring"]}>
+    <div
+      className={
+        large ? styles["lds__ring--large"] : styles["lds__ring--small"]
+      }
+      role='alert'
+      aria-label='loading'
+    >
       <div></div>
       <div></div>
       <div></div>
