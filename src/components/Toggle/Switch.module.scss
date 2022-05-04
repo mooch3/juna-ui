@@ -3,6 +3,7 @@ toggle styles copied and modified from
 https://codepen.io/mallendeo/pen/eLIiG
 by Mauricio Allende (https://mallendeo.com/)
  */
+@use '../Select/Select.module.scss';
 
 @mixin depth() {
   box-sizing: initial;
@@ -10,25 +11,52 @@ by Mauricio Allende (https://mallendeo.com/)
     inset 0px 0px 0px 3px #9c9c9c;
 }
 
-.toggle__wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+@mixin keyframes($animation-name) {
+  @-webkit-keyframes #{$animation-name} {
+    @content;
+  }
+  @-moz-keyframes #{$animation-name} {
+    @content;
+  }
+  @-ms-keyframes #{$animation-name} {
+    @content;
+  }
+  @-o-keyframes #{$animation-name} {
+    @content;
+  }
+  @keyframes #{$animation-name} {
+    @content;
+  }
 }
 
-.toggle__btn {
+@mixin animation($str) {
+  -webkit-animation: #{$str};
+  -moz-animation: #{$str};
+  -ms-animation: #{$str};
+  -o-animation: #{$str};
+  animation: #{$str};
+}
+
+@include keyframes(spinner) {
+  0% {
+    transform: translate3d(-50%, -50%, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(-50%, -50%, 0) rotate(360deg);
+  }
+}
+
+@mixin toggle-btn($color: var(--focus)) {
   box-sizing: initial;
   display: inline-block;
   outline: 0;
-  width: 8em;
-  height: 4em;
+  width: 2.5rem;
+  height: 1.25rem;
   position: relative;
   cursor: pointer;
   user-select: none;
   background: #fbfbfb;
-  border-radius: 4em;
+  border-radius: 4rem;
   padding: 4px;
   transition: all 0.4s ease;
   border: 2px solid #e8eae9;
@@ -44,15 +72,31 @@ by Mauricio Allende (https://mallendeo.com/)
     content: "";
     width: 50%;
     height: 100%;
-    border-radius: 4em;
+    border-radius: 4rem;
     background: #fbfbfb;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
       padding 0.3s ease, margin 0.3s ease;
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1), 0 4px 0 rgba(0, 0, 0, 0.08);
   }
 
+  @mixin btn-loading-spinner($color) {
+    @include animation("spinner 1.5s linear infinite");
+    border: solid 1px transparent;
+    border-bottom-color: $color;
+    border-radius: 50%;
+    content: "";
+    height: 0.75rem;
+    width: 0.75rem;
+    position: absolute;
+    top: 0.85rem;
+    right: 0;
+    z-index: 2;
+    transform: translate3d(-50%, -50%, 0);
+    will-change: transform;
+  }
+
   &.toggle__btn--on {
-    background: var(--focus);
+    background: $color;
     &:active::after {
       @include depth();
     }
@@ -70,6 +114,24 @@ by Mauricio Allende (https://mallendeo.com/)
   }
 }
 
+.switch__container {
+  @include Select.flexy(column, center, center);
+  display: flex;
+  max-width: fit-content;
+}
+
+.toggle__wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.toggle__btn {
+  @include toggle-btn();
+}
+
 .toggle__input {
   // ** hidden but accessible ** //
   border: 0;
@@ -83,5 +145,18 @@ by Mauricio Allende (https://mallendeo.com/)
   white-space: nowrap;
   &:focus {
     @include depth();
+  }
+}
+
+.toggle__btn--loading {
+  @include toggle-btn(rgba(72, 161, 255, 0.4));
+
+  &.toggle__btn--on::before {
+    @include btn-loading-spinner(var(--focus));
+    right: 0;
+  }
+  &.toggle__btn--off::before {
+    @include btn-loading-spinner(#ccc);
+    right: 40%;
   }
 }

@@ -6,9 +6,9 @@ const stories = storiesOf("junaui/Switch", module);
 
 stories.add("Switch", () => {
   return (
-    <Switch onSwitch={(checked) => console.log(checked)}>
-      <Switch.On>This is on</Switch.On>
-      <Switch.Off>This is off</Switch.Off>
+    <Switch onSwitch={(checked) => console.log(checked)} loading>
+      <Switch.OnText>This is on</Switch.OnText>
+      <Switch.OffText>This is off</Switch.OffText>
       <Switch.Toggle />
     </Switch>
   );
