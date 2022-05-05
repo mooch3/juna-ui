@@ -14,6 +14,7 @@ type SwitchProps = {
   children: React.ReactNode;
   loading?: boolean;
   toggledOn?: boolean;
+  disabled?: boolean;
 };
 
 type OnOffProps = {
@@ -23,11 +24,13 @@ type OnOffProps = {
 type SwitchCtx = {
   loading?: boolean;
   on: boolean;
-  toggle: (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => void;
+  disabled?: boolean;
+  toggle: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 const SwitchContext = createContext<SwitchCtx>({
   loading: false,
+  disabled: false,
   on: false,
   toggle: () => {},
 });
@@ -42,7 +45,13 @@ const useSwitchContext = () => {
   return ctx;
 };
 
-const Switch = ({ onSwitch, children, loading, toggledOn }: SwitchProps) => {
+const Switch = ({
+  onSwitch,
+  children,
+  loading,
+  toggledOn,
+  disabled,
+}: SwitchProps) => {
   const [on, setOn] = useState(toggledOn || false);
   const firstMount = useRef(true);
   const toggle = useCallback(() => setOn((prevValue) => !prevValue), []);
@@ -56,7 +65,10 @@ const Switch = ({ onSwitch, children, loading, toggledOn }: SwitchProps) => {
     };
   }, [on, onSwitch]);
 
-  const value = useMemo(() => ({ on, loading, toggle }), [on, loading, toggle]);
+  const value = useMemo(
+    () => ({ on, loading, disabled, toggle }),
+    [on, loading, disabled, toggle]
+  );
   return (
     <SwitchContext.Provider value={value}>
       <div className={styles["switch__container"]}>{children}</div>
@@ -75,19 +87,23 @@ const OffText = ({ children }: OnOffProps) => {
 };
 
 const Toggle = () => {
-  const { on, toggle, loading } = useSwitchContext();
-  console.log("trying to render");
+  const { on, toggle, loading, disabled } = useSwitchContext();
   return (
     <label className={styles["toggle__wrapper"]}>
       <input
         type='checkbox'
         checked={on}
-        onClick={!loading ? toggle : undefined}
+        disabled={disabled}
+        onChange={!loading || disabled ? toggle : undefined}
         className={styles["toggle__input"]}
       />
       <span
         className={
-          loading
+          disabled
+            ? on
+              ? `${styles["toggle__btn--disabled"]} ${styles["toggle__btn--on"]}`
+              : `${styles["toggle__btn--disabled"]} ${styles["toggle__btn--off"]}`
+            : loading
             ? on
               ? `${styles["toggle__btn--loading"]} ${styles["toggle__btn--on"]}`
               : `${styles["toggle__btn--loading"]} ${styles["toggle__btn--off"]}`
