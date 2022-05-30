@@ -54,7 +54,15 @@ const Switch = ({
 }: SwitchProps) => {
   const [on, setOn] = useState(toggledOn || false);
   const firstMount = useRef(true);
-  const toggle = useCallback(() => setOn((prevValue) => !prevValue), []);
+  const toggle = useCallback(() => {
+    if (loading || disabled) {
+      return;
+    }
+    setOn((prevValue) => {
+      onSwitch(!prevValue);
+      return !prevValue;
+    });
+  }, [onSwitch, loading, disabled]);
 
   useEffect(() => {
     if (firstMount.current) {
@@ -94,10 +102,11 @@ const Toggle = () => {
         type='checkbox'
         checked={on}
         disabled={disabled}
-        onChange={!loading || disabled ? toggle : undefined}
+        onChange={toggle}
         className={styles["toggle__input"]}
       />
       <span
+        aria-label='toggle switch'
         className={
           disabled
             ? on

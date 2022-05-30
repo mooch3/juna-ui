@@ -104,13 +104,13 @@ by Mauricio Allende (https://mallendeo.com/)
       box-shadow: none;
     }
     &:active::after {
-      margin-left: -1.6em;
+      margin-left: -1.25rem;
     }
   }
 
   &:active::after {
     @include depth();
-    padding-right: 1.6em;
+    padding-right: 1.25rem;
   }
 }
 
