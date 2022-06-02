@@ -1,0 +1,29 @@
+@use '../Select/Select.module.scss';
+
+@mixin acc-header() {
+  @include Select.flexy(row, center, center);
+  color: var(--label-color);
+  font-weight: 500;
+}
+
+.jui__accordion {
+  @include Select.flexy(row, center, center);
+  background-color: var(--secondary);
+  color: var(--label-color);
+  width: clamp(300px, 80%, 600px);
+}
+
+.jui__summary {
+  @include Select.flexy(row, center, center);
+  background-color: inherit;
+  padding: 1rem;
+}
+
+.jui__summary header {
+  @include acc-header();
+  flex-grow: 1;
+}
+
+.jui__summary--icon {
+  @include acc-header();
+}
