@@ -18,6 +18,8 @@ type AccordionProps = {
 type SummaryProps = {
   children: React.ReactNode;
   expandIcon: React.ReactNode;
+  id?: string;
+  "aria-controls"?: string;
 };
 
 type ContentProps = {
@@ -62,7 +64,25 @@ const Accordion = ({
     }),
     [hidden, disabled]
   );
-  // move to function
+
+  const [summary, ...content] = React.Children.toArray(children);
+
+  if (!React.isValidElement(summary)) {
+    throw new Error("Summary is not a valid react element");
+  }
+
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!hidden && contentRef.current) {
+      contentRef.current.style.maxHeight =
+        contentRef.current.scrollHeight.toString() + "px";
+    } else if (contentRef.current && hidden) {
+      contentRef.current.style.maxHeight = "0";
+    }
+  }, [hidden, contentRef]);
+
+  // TODO: move to function
   let appliedClasses;
 
   if (disabled) {
@@ -70,19 +90,29 @@ const Accordion = ({
   } else {
     if (hidden || removeGutters) {
       appliedClasses = styles.jui__accordion;
-    } else {
+    } else if (!hidden && !removeGutters) {
       appliedClasses = `${styles.jui__accordion} ${styles.expanded}`;
     }
   }
 
   return (
     <AccordionContext.Provider value={value}>
-      <div className={appliedClasses}>{children}</div>
+      <div className={appliedClasses}>
+        {summary}
+        <div
+          ref={contentRef}
+          aria-labelledby={summary.props.id}
+          id={summary.props["aria-controls"]}
+          className={styles["jui__content--wrapper"]}
+        >
+          {content}
+        </div>
+      </div>
     </AccordionContext.Provider>
   );
 };
 
-const Summary = ({ children, expandIcon }: SummaryProps) => {
+const Summary = ({ children, expandIcon, id }: SummaryProps) => {
   const { hidden, toggle, disabled } = useAccordionContext();
 
   const handleExpand = () => {
@@ -95,6 +125,8 @@ const Summary = ({ children, expandIcon }: SummaryProps) => {
   return (
     <div
       role='button'
+      aria-expanded={!hidden}
+      id={id}
       className={
         !disabled
           ? styles.jui__summary
@@ -102,7 +134,7 @@ const Summary = ({ children, expandIcon }: SummaryProps) => {
       }
       onClick={handleExpand}
     >
-      <header>{children}</header>
+      <header>{React.Children.toArray(children)}</header>
       <div
         aria-label='expand accordion'
         className={
@@ -120,23 +152,7 @@ const Summary = ({ children, expandIcon }: SummaryProps) => {
 };
 // content of header
 const Content = ({ children }: ContentProps) => {
-  const { hidden } = useAccordionContext();
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!hidden && contentRef.current) {
-      contentRef.current.style.maxHeight =
-        contentRef.current.scrollHeight.toString() + "px";
-    } else if (contentRef.current && hidden) {
-      contentRef.current.style.maxHeight = "0";
-    }
-  }, [hidden, contentRef]);
-
-  return (
-    <div ref={contentRef} className={styles["jui__content--wrapper"]}>
-      <div className={styles.jui__content}>{children}</div>
-    </div>
-  );
+  return <div className={styles.jui__content}>{children}</div>;
 };
 
 Accordion.Content = Content;
