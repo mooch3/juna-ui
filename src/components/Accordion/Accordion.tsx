@@ -10,6 +10,9 @@ import styles from "./Accordion.module.scss";
 
 type AccordionProps = {
   children?: React.ReactNode;
+  expanded?: boolean;
+  removeGutters?: boolean;
+  disabled?: boolean;
 };
 
 type SummaryProps = {
@@ -22,6 +25,7 @@ type ContentProps = {
 };
 
 type AccordionCtx = {
+  disabled?: boolean;
   hidden: boolean;
   toggle: () => void;
 };
@@ -35,51 +39,76 @@ const useAccordionContext = () => {
 };
 
 const AccordionContext = createContext<AccordionCtx>({
+  disabled: false,
   hidden: true,
   toggle: () => {},
 });
 
 // wrapper actionable component
-const Accordion = ({ children }: AccordionProps) => {
-  const [hidden, setHidden] = useState(true);
+const Accordion = ({
+  children,
+  expanded,
+  removeGutters,
+  disabled,
+}: AccordionProps) => {
+  const [hidden, setHidden] = useState(expanded ? false : true);
   const value = useMemo(
     () => ({
       hidden,
+      disabled,
       toggle: () => {
         setHidden((prevValue) => !prevValue);
       },
     }),
-    [hidden]
+    [hidden, disabled]
   );
+  // move to function
+  let appliedClasses;
+
+  if (disabled) {
+    appliedClasses = `${styles.jui__accordion} ${styles.disabled}`;
+  } else {
+    if (hidden || removeGutters) {
+      appliedClasses = styles.jui__accordion;
+    } else {
+      appliedClasses = `${styles.jui__accordion} ${styles.expanded}`;
+    }
+  }
+
   return (
     <AccordionContext.Provider value={value}>
-      <div
-        className={
-          hidden
-            ? styles.jui__accordion
-            : `${styles.jui__accordion} ${styles.expanded}`
-        }
-      >
-        {children}
-      </div>
+      <div className={appliedClasses}>{children}</div>
     </AccordionContext.Provider>
   );
 };
 
 const Summary = ({ children, expandIcon }: SummaryProps) => {
-  const { hidden, toggle } = useAccordionContext();
+  const { hidden, toggle, disabled } = useAccordionContext();
 
   const handleExpand = () => {
+    if (disabled) {
+      return;
+    }
     toggle();
   };
 
   return (
-    <div role='button' className={styles.jui__summary} onClick={handleExpand}>
+    <div
+      role='button'
+      className={
+        !disabled
+          ? styles.jui__summary
+          : `${styles.jui__summary} ${styles.disabled}`
+      }
+      onClick={handleExpand}
+    >
       <header>{children}</header>
       <div
         aria-label='expand accordion'
         className={
-          hidden
+          disabled
+            ? `${styles["jui__summary--icon"]} ${styles.disabled}`
+            : hidden
             ? styles["jui__summary--icon"]
             : `${styles["jui__summary--icon"]} ${styles.expanded}`
         }

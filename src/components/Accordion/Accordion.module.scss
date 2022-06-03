@@ -15,6 +15,13 @@
   transition: margin 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
   &.expanded {
     margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
+  &.expanded:first-of-type {
+    margin-top: 0;
+  }
+  &.disabled {
+    background-color: #ccc;
   }
 }
 
@@ -23,13 +30,17 @@
   width: calc(100% - 2rem);
   background-color: inherit;
   padding: 1rem;
-}
 
-.jui__summary header {
-  @include acc-header();
-  font-family: "Lato", sans-serif;
-  flex-grow: 1;
-  justify-content: flex-start;
+  & header {
+    @include acc-header();
+    font-family: "Lato", sans-serif;
+    flex-grow: 1;
+    justify-content: flex-start;
+  }
+
+  &.disabled header {
+    background-color: #ccc;
+  }
 }
 
 .jui__summary--icon {
@@ -41,6 +52,10 @@
   transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
   &.expanded {
     transform: rotate(180deg);
+  }
+  &.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
 }
 
